@@ -100,6 +100,16 @@ export interface PaginatedTripsResponse {
   totalPages?: number;
 }
 
+export interface PaginatedDriversResponse {
+  items?: DriverItem[];
+  drivers?: DriverItem[];
+  total?: number;
+  count?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
 export interface RecentBooking {
   _id?: string;
   id?: string;
@@ -142,11 +152,18 @@ export interface BookingItem {
 
 export interface DriverItem {
   id: string;
-  photo: string;
-  name: string;
-  phone: string;
+  user: {
+    fullName: string;
+    phone: string;
+    profileImage: string;
+  };
+  vehicle: {
+    vehicleType: string;
+  };
+  isOnline: boolean;
+  completedTrips: number;
+  totalCompletedTrips: number;
   status: string;
-  trips: number;
 }
 
 export interface AmbulanceItem {
@@ -246,28 +263,70 @@ export const dashboardService = {
       throw error;
     }
   },
-  getDrivers: async () => {
-    try {
-      const response = await api.get<DriverItem[]>(API_ENDPOINTS.drivers.root);
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    }
+
+  getDrivers: async ({
+    page,
+    limit,
+    search,
+    status,
+    isOnline,
+    isAvailable,
+    ambulanceType,
+  }: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: string;
+    isOnline?: string;
+    isAvailable?: string;
+    ambulanceType?: string;
+  }) => {
+    const response = await api.get(API_ENDPOINTS.drivers.root, {
+      params: {
+        page,
+        limit,
+        search,
+        status,
+        isOnline,
+        isAvailable,
+        ambulanceType,
+      },
+    });
+
+    return response.data.data;
   },
+
   getDriverById: async (id: string) => {
-    try {
-      const response = await api.get<
-        DriverItem & {
-          personalInfo?: string;
-          vehicle?: string;
-          tripHistory?: string[];
-        }
-      >(API_ENDPOINTS.drivers.byId(id));
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    }
+    const response = await api.get(API_ENDPOINTS.drivers.byId(id));
+    return response.data;
   },
+  createDriver: async (data: FormData) => {
+    const response = await api.post(API_ENDPOINTS.drivers.create, data);
+
+    return response.data;
+  },
+
+  updateDriver: async (id: string, data: FormData) => {
+    const response = await api.put(API_ENDPOINTS.drivers.update(id), data);
+    return response.data;
+  },
+
+  updateDriverActive: async (id: string, isActive: boolean) => {
+    const response = await api.patch(API_ENDPOINTS.drivers.updateActive(id), {
+      isActive,
+    });
+
+    return response.data;
+  },
+
+  updateDriverStatus: async (id: string, status: string) => {
+    const response = await api.patch(API_ENDPOINTS.drivers.updateStatus(id), {
+      status,
+    });
+
+    return response.data;
+  },
+
   getAmbulances: async () => {
     try {
       const response = await api.get<AmbulanceItem[]>(

@@ -17,6 +17,7 @@ import Loader from "../../components/Loader/Loader";
 import { authService } from "../../services/authService";
 import { useAuthStore } from "../../stores/authStore";
 import { useThemeStore } from "../../stores/themeStore";
+import { getAppTheme } from "../../styles/theme";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),
@@ -118,7 +119,7 @@ export default function LoginPage() {
           style={{
             padding: 32,
             borderRadius: 20,
-            background: "#FFFFFF",
+            background: getAppTheme(mode).palette.background.paper,
             boxShadow: "0 14px 40px rgba(15, 23, 42, 0.08)",
             minHeight: 420,
             display: "flex",

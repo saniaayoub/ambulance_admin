@@ -4,17 +4,21 @@ console.log("VITE_BASE_URL:", import.meta.env.VITE_BASE_URL);
 
 const api = axios.create({
   //   baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
-  baseURL: "http://192.168.1.4:5000/api",
+  baseURL: "http://192.168.1.3:5000/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 api.interceptors.request.use((config) => {
-  console.log(config, "api config");
   const token = localStorage.getItem("token");
-  if (token && config.headers) {
+
+  if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
   }
 
   return config;

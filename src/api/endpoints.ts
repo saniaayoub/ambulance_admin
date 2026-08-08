@@ -19,16 +19,17 @@ export const API_ENDPOINTS = {
 
   drivers: {
     root: "admin/drivers",
-    create: "admin/drivers",
-    byId: (id: string) => `/drivers/${id}`,
-    update: (id: string) => `/drivers/${id}`,
-    delete: (id: string) => `/drivers/${id}`,
-    updateStatus: (id: string) => `/drivers/${id}/status`,
+    create: "admin/create-driver",
+    byId: (id: string) => `admin/drivers/${id}`,
+    update: (id: string) => `admin/drivers/${id}`,
+    delete: (id: string) => `admin/drivers/${id}`,
+    updateStatus: (id: string) => `admin/drivers/${id}/status`,
+    updateActive: (id: string) => `admin/drivers/${id}/active`,
   },
 
   ambulances: {
     root: "admin/ambulances",
-    create: "admin/ambulances",
+    create: "admin/create-ambulance",
     byId: (id: string) => `/ambulances/${id}`,
     update: (id: string) => `/ambulances/${id}`,
     delete: (id: string) => `/ambulances/${id}`,

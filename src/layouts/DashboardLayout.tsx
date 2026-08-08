@@ -111,7 +111,7 @@ export default function DashboardLayout() {
       </Drawer>
 
       <Box sx={{ flex: 1 }}>
-        <AppBar
+        {/* <AppBar
           position="sticky"
           color="transparent"
           elevation={0}
@@ -131,7 +131,7 @@ export default function DashboardLayout() {
               Operations Dashboard
             </Typography>
           </Toolbar>
-        </AppBar>
+        </AppBar> */}
 
         <Box sx={{ p: { xs: 2, md: 3 } }}>
           <Outlet />

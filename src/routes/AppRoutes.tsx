@@ -9,6 +9,7 @@ import UsersPage from "../pages/Users/UsersPage";
 import SettingsPage from "../pages/Settings/SettingsPage";
 import TripDetailsPage from "../pages/Trips/TripDetailsPage";
 import ProtectedRoute from "./ProtectedRoute";
+import DriversDetailsPage from "../pages/Drivers/DriverDetailsPage";
 
 export default function AppRoutes() {
   return (
@@ -21,6 +22,7 @@ export default function AppRoutes() {
           <Route path="trips" element={<TripsPage />} />
           <Route path="trips/:id" element={<TripDetailsPage />} />
           <Route path="drivers" element={<DriversPage />} />
+          <Route path="drivers/:id" element={<DriversDetailsPage />} />
           <Route path="ambulances" element={<AmbulationsPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="settings" element={<SettingsPage />} />
