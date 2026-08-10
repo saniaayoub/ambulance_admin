@@ -30,10 +30,10 @@ export const API_ENDPOINTS = {
   ambulances: {
     root: "admin/ambulances",
     create: "admin/create-ambulance",
-    byId: (id: string) => `/ambulances/${id}`,
-    update: (id: string) => `/ambulances/${id}`,
-    delete: (id: string) => `/ambulances/${id}`,
-    updateStatus: (id: string) => `/ambulances/${id}/status`,
+    byId: (id: string) => `admin/ambulances/${id}`,
+    update: (id: string) => `admin/ambulances/${id}`,
+    delete: (id: string) => `admin/ambulances/${id}`,
+    updateStatus: (id: string) => `admin/ambulances/${id}/status`,
   },
 
   users: {

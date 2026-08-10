@@ -93,11 +93,12 @@ export interface Trip {
 export interface PaginatedTripsResponse {
   items?: Trip[];
   trips?: Trip[];
-  total?: number;
-  count?: number;
-  page?: number;
-  limit?: number;
-  totalPages?: number;
+  pagination: {
+    total?: number;
+    pages?: number;
+    limit?: number;
+    page?: number;
+  };
 }
 
 export interface PaginatedDriversResponse {
@@ -221,13 +222,14 @@ export const dashboardService = {
 
       const payload = response.data?.data ?? response.data;
       const trips = payload?.items ?? payload?.trips ?? [];
+      const pagination = payload?.pagination;
 
       return {
         items: trips,
-        total: payload?.total ?? payload?.count ?? trips.length,
-        page: payload?.page ?? 1,
-        limit: payload?.limit ?? trips.length,
-        totalPages: payload?.totalPages ?? 1,
+        total: pagination?.total ?? trips.length,
+        page: pagination?.page ?? 1,
+        limit: pagination?.limit ?? trips.length,
+        pages: pagination?.pages ?? 1,
       };
     } catch (error) {
       throw error;
@@ -327,15 +329,52 @@ export const dashboardService = {
     return response.data;
   },
 
-  getAmbulances: async () => {
+  getAmbulances: async ({
+    page,
+    limit,
+    search,
+    status,
+    type,
+  }: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: string;
+    type?: string;
+  }) => {
     try {
-      const response = await api.get<AmbulanceItem[]>(
-        API_ENDPOINTS.ambulances.root,
-      );
-      return response.data;
+      const response = await api.get(API_ENDPOINTS.ambulances.root, {
+        params: {
+          page,
+          limit,
+          search,
+          status,
+          type,
+        },
+      });
+      return response?.data?.data ?? response.data;
     } catch (error: any) {
       throw error;
     }
+  },
+  getAmbulanceById: async (id: string) => {
+    const response = await api.get(API_ENDPOINTS.ambulances.byId(id));
+
+    return response.data;
+  },
+
+  updateAmbulance: async (
+    id: string,
+    data: {
+      vehicleNumber: string;
+      model: string;
+      vehicleType: string;
+      driverId: string;
+    },
+  ) => {
+    const response = await api.put(API_ENDPOINTS.ambulances.update(id), data);
+
+    return response.data;
   },
   getUsers: async () => {
     try {

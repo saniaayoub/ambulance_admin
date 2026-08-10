@@ -217,21 +217,6 @@ export default function DriversPage() {
     }
   };
 
-  const handleDriverStatus = async (
-    driverId: string,
-    status: "PENDING" | "APPROVED" | "REJECTED",
-  ) => {
-    try {
-      await dashboardService.updateDriverStatus(driverId, status);
-
-      await loadDrivers();
-    } catch (error: any) {
-      setError(
-        error?.response?.data?.message || "Failed to update driver status.",
-      );
-    }
-  };
-
   if (error) {
     return <ErrorState message={error} />;
   }

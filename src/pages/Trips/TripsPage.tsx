@@ -85,6 +85,7 @@ export default function TripsPage() {
 
         setRows(data.items ?? []);
         setTotal(data.total ?? 0);
+        console.log(total, "k");
       } catch (err: any) {
         setError(err?.response?.data?.message || "Failed to load trips.");
       } finally {

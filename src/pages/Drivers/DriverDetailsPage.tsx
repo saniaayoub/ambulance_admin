@@ -83,7 +83,6 @@ export default function DriverDetailsPage() {
   };
   const validateForm = () => {
     const newErrors: typeof errors = {};
-    console.log(form, "form");
     if (!form.fullName.trim()) {
       newErrors.fullName = "Full name is required";
     } else if (form.fullName.trim().length < 3) {
@@ -442,7 +441,10 @@ export default function DriverDetailsPage() {
 
                   <InfoRow label="Model" value={driver?.model} />
 
-                  <InfoRow label="Vehicle Status" value={driver?.status} />
+                  <InfoRow
+                    label="Vehicle Status"
+                    value={driver?.vehicleStatus}
+                  />
                 </Stack>
               )}
             </CardContent>

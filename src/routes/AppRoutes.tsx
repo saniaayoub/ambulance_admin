@@ -10,6 +10,7 @@ import SettingsPage from "../pages/Settings/SettingsPage";
 import TripDetailsPage from "../pages/Trips/TripDetailsPage";
 import ProtectedRoute from "./ProtectedRoute";
 import DriversDetailsPage from "../pages/Drivers/DriverDetailsPage";
+import AmbulanceDetailsPage from "../pages/Ambulances/AmbulanceDetailsPage";
 
 export default function AppRoutes() {
   return (
@@ -24,6 +25,10 @@ export default function AppRoutes() {
           <Route path="drivers" element={<DriversPage />} />
           <Route path="drivers/:id" element={<DriversDetailsPage />} />
           <Route path="ambulances" element={<AmbulationsPage />} />
+          <Route
+            path="/dashboard/ambulances/:id"
+            element={<AmbulanceDetailsPage />}
+          />
           <Route path="users" element={<UsersPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
