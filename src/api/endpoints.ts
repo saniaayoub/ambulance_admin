@@ -38,8 +38,9 @@ export const API_ENDPOINTS = {
 
   users: {
     root: "admin/users",
-    byId: (id: string) => `/users/${id}`,
-    updateStatus: (id: string) => `/users/${id}/status`,
+    byId: (id: string) => `admin/users/${id}`,
+    status: (id: string) => `admin/users/${id}/status`,
+    trips: (id: string) => `admin/users/${id}/trips`,
   },
 
   settings: {

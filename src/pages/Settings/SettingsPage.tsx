@@ -1,103 +1,298 @@
 import { useEffect, useState } from "react";
-import { Button, Skeleton, TextField } from "@mui/material";
+
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  FormControlLabel,
+  Grid,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material";
+
 import PageHeader from "../../components/common/PageHeader";
-import EmptyState from "../../components/common/EmptyState";
-import ErrorState from "../../components/common/ErrorState";
+
 import {
   dashboardService,
-  type SettingsData,
+  type Settings,
 } from "../../services/dashboardService";
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState<SettingsData | null>(null);
+  const [form, setForm] = useState<Settings | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const loadSettings = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const data = await dashboardService.getSettings();
-        setSettings(data);
-      } catch (err: any) {
-        setError(err?.response?.data?.message || "Failed to load settings.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadSettings();
   }, []);
 
-  const handleSave = async () => {
-    if (!settings) return;
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
 
-    setSaving(true);
-    setError(null);
+      const data = await dashboardService.getSettings();
+
+      setForm(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (field: keyof Settings, value: any) => {
+    setForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            [field]: value,
+          }
+        : prev,
+    );
+  };
+
+  const handleNotificationChange = (
+    field: "bookingCreated" | "driverAssigned" | "tripCompleted",
+    value: boolean,
+  ) => {
+    setForm((prev) =>
+      prev
+        ? {
+            ...prev,
+            notifications: {
+              ...prev.notifications,
+              [field]: value,
+            },
+          }
+        : prev,
+    );
+  };
+
+  const handleSave = async () => {
+    if (!form) return;
 
     try {
-      await dashboardService.updateSettings(settings);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to update settings.");
+      setSaving(true);
+      setMessage("");
+
+      await dashboardService.updateSettings({
+        waitingFreeMinutes: form.waitingFreeMinutes,
+
+        driverSearchRadiusKm: form.driverSearchRadiusKm,
+
+        notifications: form.notifications,
+
+        appName: form.appName,
+
+        supportPhone: form.supportPhone,
+
+        supportEmail: form.supportEmail,
+      });
+
+      setMessage("Settings updated successfully");
+    } catch (error: any) {
+      setMessage(error?.response?.data?.message || "Failed to update settings");
     } finally {
       setSaving(false);
     }
   };
 
-  if (error) {
-    return <ErrorState message={error} />;
+  if (loading || !form) {
+    return <Box p={3}>Loading settings...</Box>;
   }
 
   return (
-    <div>
+    <Box>
       <PageHeader
         title="Settings"
-        subtitle="Configure company contact information"
+        description="Manage your ambulance system configuration"
       />
 
-      {loading ? (
-        <Skeleton variant="rectangular" height={260} sx={{ borderRadius: 3 }} />
-      ) : !settings ? (
-        <EmptyState
-          title="No settings available"
-          description="The settings data has not been loaded yet."
-        />
-      ) : (
-        <div style={{ display: "grid", gap: 16, maxWidth: 620 }}>
-          <TextField
-            label="Company Name"
-            value={settings.companyName}
-            onChange={(event) =>
-              setSettings({ ...settings, companyName: event.target.value })
-            }
-          />
-          <TextField
-            label="Support Phone"
-            value={settings.supportPhone}
-            onChange={(event) =>
-              setSettings({ ...settings, supportPhone: event.target.value })
-            }
-          />
-          <TextField
-            label="Emergency Phone"
-            value={settings.emergencyPhone}
-            onChange={(event) =>
-              setSettings({ ...settings, emergencyPhone: event.target.value })
-            }
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save"}
-          </Button>
-        </div>
+      {message && (
+        <Alert
+          severity={message.includes("successfully") ? "success" : "error"}
+          sx={{ mb: 3 }}
+        >
+          {message}
+        </Alert>
       )}
-    </div>
+
+      <Grid container spacing={3}>
+        {/* Booking Settings */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600}>
+                Booking Settings
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Configure driver search and waiting time.
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                }}
+              >
+                <TextField
+                  label="Free Waiting Time"
+                  type="number"
+                  fullWidth
+                  value={form.waitingFreeMinutes}
+                  onChange={(e) =>
+                    handleChange("waitingFreeMinutes", Number(e.target.value))
+                  }
+                  helperText="Minutes before waiting charges start"
+                />
+
+                <TextField
+                  label="Driver Search Radius"
+                  type="number"
+                  fullWidth
+                  value={form.driverSearchRadiusKm}
+                  onChange={(e) =>
+                    handleChange("driverSearchRadiusKm", Number(e.target.value))
+                  }
+                  helperText="Maximum distance in kilometers"
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* System Settings */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600}>
+                System Settings
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                General application information.
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                }}
+              >
+                <TextField
+                  label="Application Name"
+                  fullWidth
+                  value={form.appName}
+                  onChange={(e) => handleChange("appName", e.target.value)}
+                />
+
+                <TextField
+                  label="Support Phone"
+                  fullWidth
+                  value={form.supportPhone}
+                  onChange={(e) => handleChange("supportPhone", e.target.value)}
+                />
+
+                <TextField
+                  label="Support Email"
+                  fullWidth
+                  value={form.supportEmail}
+                  onChange={(e) => handleChange("supportEmail", e.target.value)}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Notifications */}
+        <Grid size={{ xs: 12 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" fontWeight={600}>
+                Notifications
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                Choose which system events should generate notifications.
+              </Typography>
+
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={form.notifications.bookingCreated}
+                    onChange={(e) =>
+                      handleNotificationChange(
+                        "bookingCreated",
+                        e.target.checked,
+                      )
+                    }
+                  />
+                }
+                label="New booking created"
+              />
+
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={form.notifications.driverAssigned}
+                    onChange={(e) =>
+                      handleNotificationChange(
+                        "driverAssigned",
+                        e.target.checked,
+                      )
+                    }
+                  />
+                }
+                label="Driver assigned"
+              />
+
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={form.notifications.tripCompleted}
+                    onChange={(e) =>
+                      handleNotificationChange(
+                        "tripCompleted",
+                        e.target.checked,
+                      )
+                    }
+                  />
+                }
+                label="Trip completed"
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Save */}
+        <Grid size={{ xs: 12 }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

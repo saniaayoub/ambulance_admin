@@ -187,7 +187,46 @@ export interface SettingsData {
   supportPhone: string;
   emergencyPhone: string;
 }
+export interface UserItem {
+  _id: string;
+  fullName: string;
+  phone: string;
+  profileImage?: string;
+  isActive: boolean;
+  isVerified: boolean;
 
+  totalTrips: number;
+  completedTrips: number;
+  cancelledTrips: number;
+
+  createdAt: string;
+}
+
+export interface Settings {
+  _id: string;
+
+  waitingFreeMinutes: number;
+
+  driverSearchRadiusKm: number;
+
+  notifications: {
+    bookingCreated: boolean;
+    driverAssigned: boolean;
+    tripCompleted: boolean;
+  };
+
+  appName: string;
+  supportPhone: string;
+  supportEmail: string;
+}
+
+export interface UsersResponse {
+  items: UserItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 export const dashboardService = {
   getDashboard: async () => {
     try {
@@ -376,13 +415,17 @@ export const dashboardService = {
 
     return response.data;
   },
-  getUsers: async () => {
-    try {
-      const response = await api.get<UserItem[]>(API_ENDPOINTS.users.root);
-      return response.data;
-    } catch (error: any) {
-      throw error;
-    }
+  getUsers: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+  }): Promise<UsersResponse> => {
+    const response = await api.get(API_ENDPOINTS.users.root, {
+      params,
+    });
+
+    return response.data.data;
   },
   getUserById: async (id: string) => {
     try {
@@ -393,26 +436,37 @@ export const dashboardService = {
           bookingHistory?: string[];
         }
       >(API_ENDPOINTS.users.byId(id));
-      return response.data;
+      return response.data.data ?? response.data;
     } catch (error: any) {
+      throw error;
+    }
+  },
+
+  updateUserStatus: async (id: string, isActive: boolean) => {
+    try {
+      const response = await api.patch(API_ENDPOINTS.users.status(id), {
+        isActive,
+      });
+
+      return response.data.data;
+    } catch (error) {
       throw error;
     }
   },
   getSettings: async () => {
     try {
-      const response = await api.get<SettingsData>(API_ENDPOINTS.settings.root);
-      return response.data;
+      const response = await api.get(API_ENDPOINTS.settings.root);
+
+      return response.data.data;
     } catch (error: any) {
       throw error;
     }
   },
   updateSettings: async (payload: SettingsData) => {
     try {
-      const response = await api.put<SettingsData>(
-        API_ENDPOINTS.settings.root,
-        payload,
-      );
-      return response.data;
+      const response = await api.patch(API_ENDPOINTS.settings.root, payload);
+
+      return response.data.data;
     } catch (error: any) {
       throw error;
     }

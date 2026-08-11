@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 import { dashboardService } from "../../services/dashboardService";
+import toast from "react-hot-toast";
 
 export default function DriverDetailsPage() {
   const { id } = useParams();
@@ -159,10 +160,17 @@ export default function DriverDetailsPage() {
 
       setEditing(false);
       setImage(null);
+      toast.success("Driver info updated successfully");
 
       await loadDriver();
     } catch (error) {
-      console.error(error);
+      console.log("UPDATE AMBULANCE ERROR:", error?.response?.data);
+
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update ambulance";
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -213,7 +221,6 @@ export default function DriverDetailsPage() {
   return (
     <Box>
       {/* Header */}
-
       <Stack
         direction={{ xs: "column", sm: "row" }}
         style={{ justifyContent: "space-between", alignItems: "center" }}

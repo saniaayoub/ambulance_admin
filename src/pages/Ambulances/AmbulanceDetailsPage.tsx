@@ -18,6 +18,7 @@ import {
 
 import { dashboardService } from "../../services/dashboardService";
 import ErrorState from "../../components/common/ErrorState";
+import toast from "react-hot-toast";
 
 export default function AmbulanceDetailsPage() {
   const { id } = useParams();
@@ -25,8 +26,6 @@ export default function AmbulanceDetailsPage() {
 
   const [ambulance, setAmbulance] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -90,14 +89,14 @@ export default function AmbulanceDetailsPage() {
   }, [editing]);
 
   const handleSave = async () => {
+    setSaving(true);
     try {
       setLoading(true);
 
       await dashboardService.updateAmbulance(id!, form);
 
       // success
-      setSuccessMessage("Ambulance updated successfully");
-
+      toast.success("Ambulance updated successfully");
       await loadAmbulance();
     } catch (error: any) {
       console.log("UPDATE AMBULANCE ERROR:", error?.response?.data);
@@ -110,6 +109,7 @@ export default function AmbulanceDetailsPage() {
       setError(message);
     } finally {
       setLoading(false);
+      setSaving(false);
     }
   };
 
